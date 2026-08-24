@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# Launcher. Not part of the lesson — just makes the agent convenient to start
+# against any directory, from anywhere.
+#
+#   mini-claude                 # work in the current directory
+#   mini-claude ~/code/project  # work in that directory instead
+#
+# The agent's workspace is simply the process's working directory, so all this
+# script does is cd there, point Node at the .env living next to the source,
+# and hand over.
+
+set -euo pipefail
+
+# Resolve this script's real location, following symlinks, so the script still
+# finds src/ and .env when linked onto your PATH.
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+HERE="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+
+case "${1:-}" in
+  -h | --help)
+    cat <<'EOF'
+Usage: mini-claude [directory]
+
+Starts the mini-claude coding agent with its workspace set to <directory>,
+or the current directory if none is given.
+EOF
+    exit 0
+    ;;
+esac
+
+TARGET="${1:-$PWD}"
+if [ ! -d "$TARGET" ]; then
+  echo "mini-claude: not a directory: $TARGET" >&2
+  exit 1
+fi
+
+cd "$TARGET"
+
+# Load the key from the .env next to the source, by absolute path — otherwise
+# --env-file would look for a .env inside the target directory. If there is no
+# .env we just don't pass the flag: an exported ANTHROPIC_API_KEY works too, and
+# src/config.js prints a friendly message if neither is present.
+if [ -f "$HERE/.env" ]; then
+  exec node --env-file="$HERE/.env" "$HERE/src/index.js"
+else
+  exec node "$HERE/src/index.js"
+fi
