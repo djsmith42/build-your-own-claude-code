@@ -53,6 +53,9 @@ export function createAgent() {
         }
       }
 
+      // Reset terminal
+      process.stdout.write('\x1b[0m\n')
+
       const response = await stream.finalMessage();
       contextArray.push({ role: "assistant", content: response.content });
 

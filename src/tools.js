@@ -2,13 +2,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { config } from "./config.js";
 
 const execAsync = promisify(exec);
 
+const workspace = process.cwd();
+
 // Resolve a model-supplied path against the workspace. The model tends to send
 // relative paths; we normalize so every tool agrees on what "src/app.js" means.
-const resolvePath = (p) => path.resolve(config.workspace, p);
+const resolvePath = (p) => path.resolve(workspace, p);
 
 // Directories that are never worth walking into during list/search.
 const SKIP = new Set(["node_modules", ".git", "dist", "build", ".next", "__pycache__"]);
@@ -100,7 +101,7 @@ export const tools = [
     },
     async run({ path: p = "." }) {
       const found = [];
-      await walk(resolvePath(p), (file) => found.push(path.relative(config.workspace, file)));
+      await walk(resolvePath(p), (file) => found.push(path.relative(workspace, file)));
       if (found.length === 0) return "No files found.";
       // Truncate rather than blow up the context window on a huge tree.
       const shown = found.slice(0, 200);
@@ -134,7 +135,7 @@ export const tools = [
         }
         text.split("\n").forEach((line, i) => {
           if (hits.length < 100 && re.test(line)) {
-            hits.push(`${path.relative(config.workspace, file)}:${i + 1}: ${line.trim().slice(0, 200)}`);
+            hits.push(`${path.relative(workspace, file)}:${i + 1}: ${line.trim().slice(0, 200)}`);
           }
         });
       });
@@ -158,7 +159,7 @@ export const tools = [
     async run({ command }) {
       try {
         const { stdout, stderr } = await execAsync(command, {
-          cwd: config.workspace,
+          cwd: workspace,
           timeout: 120_000,
           maxBuffer: 2_000_000,
         });
