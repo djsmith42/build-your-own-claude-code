@@ -1,11 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { config } from "./config.js";
 import { toolSchemas, executeTool } from "./tools.js";
 
 const client = new Anthropic();
 
 const SYSTEM_PROMPT = `
-You are a coding agent running in a terminal, working in ${config.workspace}.
+You are a coding agent running in a terminal, working in ${process.cwd()}.
 
 You have tools to list, read, search, write, and edit files, and to run shell commands.
 Use them rather than guessing: read a file before you change it, and run the tests
