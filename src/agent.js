@@ -1,14 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { toolSchemas, executeTool } from "./tools.js";
+import { runBashSchema, runBash } from "./run-bash.js";
 
 const client = new Anthropic();
 
 const SYSTEM_PROMPT = `
 You are a coding agent running in a terminal, working in ${process.cwd()}.
 
-You have tools to list, read, search, write, and edit files, and to run shell commands.
-Use them rather than guessing: read a file before you change it, and run the tests
-after you change it.
+You have exactly one tool, run_bash, which runs a shell command in that directory.
+Everything you do goes through it: cat and sed to read files, ls, find and grep to
+explore and search, sed or a heredoc to change files, and any program you need to run.
+Use it rather than guessing: read a file before you change it, and run the tests after
+you change it.
 
 Be concise. The human is watching a terminal, not reading a report. Explain what you
 did in a sentence or two, not a summary of every file you touched.
@@ -29,7 +31,7 @@ export function createAgent() {
         model: 'claude-opus-5',
         max_tokens: 32000,
         system: SYSTEM_PROMPT,
-        tools: toolSchemas,
+        tools: [runBashSchema],
         messages: contextArray,
         thinking: { type: "adaptive", display: "summarized" },
         output_config: { effort: "medium" },
@@ -67,17 +69,21 @@ export function createAgent() {
 
       const toolResults = await Promise.all(
         toolUses.map(async (block) => {
-          const preview = Object.entries(block.input ?? {})
-            .map(([k, v]) => `${k}=${JSON.stringify(v).slice(0, 60)}`)
-            .join(" ");
+          // Echo the command so the human can follow along, on one line.
+          const command = String(block.input?.command ?? "").replace(/\s+/g, " ");
           process.stdout.write(
-            `\x1b[33m⚒ \x1b[1m${block.name}\x1b[0m\x1b[2m ${preview}\x1b[0m\n`,
+            `\x1b[33m⚒ \x1b[1mrun_bash\x1b[0m\x1b[2m ${command.slice(0, 120)}\x1b[0m\n`,
           );
 
-          const { toolOutput, isError } = await executeTool(block.name, block.input);
+          // run_bash is the only tool we offer, so anything else is the model
+          // hallucinating a name
+          const { output, isError } =
+            block.name === runBashSchema.name
+              ? await runBash(block.input ?? {})
+              : { output: `No such tool: ${block.name}. Use run_bash.`, isError: true };
 
-          // Display tool result:
-          const lines = toolOutput.split("\n");
+          // Display the command's output:
+          const lines = output.split("\n");
           const extra = lines.length - 4;
           process.stdout.write(
             (isError ? "\x1b[31m" : "\x1b[90m") +
@@ -89,7 +95,7 @@ export function createAgent() {
           return {
             type: "tool_result",
             tool_use_id: block.id, // ← the id ties result back to request
-            content: toolOutput,
+            content: output,
             is_error: isError,
           };
         }),

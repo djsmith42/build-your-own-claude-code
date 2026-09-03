@@ -1,7 +1,6 @@
 import readline from "node:readline";
 import { createAgent } from "./agent.js";
 
-const agent = createAgent();
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -10,6 +9,7 @@ const rl = readline.createInterface({
 
 rl.prompt();
 
+const agent = createAgent();
 for await (const line of rl) {
   const input = line.trim();
   if (input) {

@@ -45,7 +45,7 @@ cd "$TARGET"
 # Load the key from the .env next to the source, by absolute path — otherwise
 # --env-file would look for a .env inside the target directory. If there is no
 # .env we just don't pass the flag: an exported ANTHROPIC_API_KEY works too, and
-# src/config.js prints a friendly message if neither is present.
+# the Anthropic SDK explains itself if neither is present.
 if [ -f "$HERE/.env" ]; then
   exec node --env-file="$HERE/.env" "$HERE/src/index.js"
 else
