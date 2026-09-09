@@ -7,7 +7,7 @@
   "scripts": {
     "start": "./mini-claude"
   },
-  "engines": { "node": ">=20.6" },
+  "engines": { "node": ">=20.12" },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.0"
   }
