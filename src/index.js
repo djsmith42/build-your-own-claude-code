@@ -1,16 +1,16 @@
 import readline from "node:readline";
 import { createAgent } from "./agent.js";
 
-const rl = readline.createInterface({
+const userInput = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
   prompt: "\x1b[34m\x1b[1mmini-claude› \x1b[0m", // blue, bold
 });
 
-rl.prompt();
+userInput.prompt();
 
 const agent = createAgent();
-for await (const line of rl) {
+for await (const line of userInput) {
   const input = line.trim();
   if (input) {
     try {
@@ -20,7 +20,7 @@ for await (const line of rl) {
     }
   }
 
-  rl.prompt();
+  userInput.prompt();
 }
 
-rl.close();
+userInput.close();

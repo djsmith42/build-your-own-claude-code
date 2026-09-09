@@ -1,19 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { runBashSchema, runBash } from "./run-bash.js";
+import { runBashToolDef, runBash } from "./run-bash.js";
 
 const client = new Anthropic();
 
 const SYSTEM_PROMPT = `
 You are a coding agent running in a terminal, working in ${process.cwd()}.
-
-You have exactly one tool, run_bash, which runs a shell command in that directory.
-Everything you do goes through it: cat and sed to read files, ls, find and grep to
-explore and search, sed or a heredoc to change files, and any program you need to run.
-Use it rather than guessing: read a file before you change it, and run the tests after
-you change it.
-
-Be concise. The human is watching a terminal, not reading a report. Explain what you
-did in a sentence or two, not a summary of every file you touched.
 
 All output should be appropriate for terminal display. No markdown. You can use terminal
 color and font control codes.
@@ -31,7 +22,7 @@ export function createAgent() {
         model: 'claude-opus-5',
         max_tokens: 32000,
         system: SYSTEM_PROMPT,
-        tools: [runBashSchema],
+        tools: [runBashToolDef],
         messages: contextArray,
         thinking: { type: "adaptive", display: "summarized" },
         output_config: { effort: "medium" },
@@ -78,7 +69,7 @@ export function createAgent() {
           // run_bash is the only tool we offer, so anything else is the model
           // hallucinating a name
           const { output, isError } =
-            block.name === runBashSchema.name
+            block.name === runBashToolDef.name
               ? await runBash(block.input ?? {})
               : { output: `No such tool: ${block.name}. Use run_bash.`, isError: true };
 
