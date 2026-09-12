@@ -14,7 +14,7 @@ export function createAgent() {
 
     while (true) {
       loopCount++
-      process.stdout.write(`\x1b[35m\n[Loop Iteration ${loopCount}] Context array length: ${contextArray.length}\n`)
+      process.stdout.write(`\x1b[35m\n[Loop ${loopCount}] Context array length: ${contextArray.length}\n`)
       const stream = client.messages.stream({
         model: 'claude-opus-5',
         max_tokens: 32000,
