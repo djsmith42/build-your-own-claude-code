@@ -3,7 +3,10 @@ import { runBashToolDef, runBash } from "./run-bash.js";
 
 const client = new Anthropic();
 
-const SYSTEM_PROMPT = `You are a coding agent running in a terminal, working in ${process.cwd()}. Make output look good in a terminal (no markdown)`;
+const SYSTEM_PROMPT = `
+You are a coding agent running in a terminal, working in ${process.cwd()}. 
+Make output look good in a terminal (no markdown)
+`.trim();
 
 export function createAgent() {
   const contextArray = [];
@@ -36,8 +39,10 @@ export function createAgent() {
 
       // Run tools:
       const toolUses = response.content.filter((b) => b.type === "tool_use");
-      const toolResults = await runTools(toolUses);
-      contextArray.push({ role: "user", content: toolResults });
+      if (toolUses.length > 0) {
+        const toolResults = await runTools(toolUses);
+        contextArray.push({ role: "user", content: toolResults });
+      }
     }
   }
 
@@ -81,7 +86,7 @@ export function createAgent() {
         if (currentContentType === null || event.delta.type != currentContentType) {
           switch (event.delta.type) {
             case 'thinking_delta': process.stdout.write(`\n\x1b[90mThinking: `); break; // gray
-            case 'text_delta':     process.stdout.write(`\n\x1b[32m`); break; // green
+            case 'text_delta':     process.stdout.write(`\n\x1b[32m`);           break; // green
           }
           currentContentType = event.delta.type;
         }
