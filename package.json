@@ -1,13 +1,13 @@
 {
   "name": "mini-claude",
   "version": "1.0.0",
-  "description": "A minimal coding agent harness for learning",
   "type": "module",
-  "bin": { "mini-claude": "./mini-claude" },
   "scripts": {
     "start": "./mini-claude"
   },
-  "engines": { "node": ">=20.12" },
+  "engines": {
+    "node": ">=20.12"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.0"
   }
