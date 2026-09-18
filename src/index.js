@@ -10,6 +10,7 @@ userInput.prompt();
 
 for await (const line of userInput) {
   // TODO Handle user input
+  userInput.prompt();
 }
 
 userInput.close();
