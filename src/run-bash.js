@@ -21,17 +21,5 @@ export const runBashToolDef = {
 };
 
 export async function runBash({ command }) {
-  try {
-    const { stdout, stderr } = await promisify(exec)(command, {cwd});
-    return {
-      output: (stdout + stderr).trim() || "(no output)",
-      isError: false
-    };
-  } catch (err) {
-    const out = ((err.stdout ?? "") + (err.stderr ?? "")).trim();
-    return {
-      output: `Exit code ${err.code ?? "?"}\n${out || err.message}`,
-      isError: true
-    };
-  }
+  // TODO
 }
