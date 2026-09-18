@@ -1,5 +1,4 @@
 import readline from "node:readline";
-import { createAgent } from "./agent.js";
 
 const userInput = readline.createInterface({
   input: process.stdin,
