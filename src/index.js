@@ -11,16 +11,7 @@ userInput.prompt();
 
 const agent = createAgent();
 for await (const line of userInput) {
-  const input = line.trim();
-  if (input) {
-    try {
-      await agent.sendChatText(input);
-    } catch (err) {
-      process.stdout.write(`\x1b[31m✗ ${err.message}\x1b[0m\n\n`);
-    }
-  }
-
-  userInput.prompt();
+  // TODO Handle user input
 }
 
 userInput.close();
