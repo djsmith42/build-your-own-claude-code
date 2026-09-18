@@ -8,7 +8,6 @@ const userInput = readline.createInterface({
 
 userInput.prompt();
 
-const agent = createAgent();
 for await (const line of userInput) {
   // TODO Handle user input
 }
